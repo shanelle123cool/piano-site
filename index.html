@@ -3,293 +3,233 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎹 Piano World</title>
+<title>Piano World 🎹</title>
+
+<!-- MIDI reader -->
+<script src="https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/build/Midi.js"></script>
 
 <style>
 :root {
-    --bg:#090e1d;
-    --card:#151f34;
-    --card2:#222e48;
-    --text:#f8f5ff;
-    --muted:#b9c1d7;
-    --pink:#eda5ef;
-    --purple:#bba8ff;
-    --border:#36425e;
-    --green:#8df0be;
+    --bg: #fff5fb;
+    --card: #ffffff;
+    --text: #35243d;
+    --accent: #df75b5;
+    --accent2: #a78bfa;
+    --border: #f0d7eb;
 }
-* {box-sizing:border-box;margin:0;padding:0}
-body {
-    font-family:Arial,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    line-height:1.6;
-    transition:.2s;
-}
-body.light {
-    --bg:#f6f0ff;
-    --card:#fff;
-    --card2:#eee5ff;
-    --text:#29203e;
-    --muted:#635b78;
-    --pink:#c76bd0;
-    --purple:#8264d8;
-    --border:#ddd0f0;
-}
-header {
-    position:sticky;
-    top:0;
-    z-index:10;
-    background:var(--bg);
-    border-bottom:1px solid var(--border);
-    padding:12px;
-}
-nav {
-    max-width:1150px;
-    margin:auto;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:12px;
-}
-.logo {font-size:1.3rem;font-weight:bold;color:var(--pink)}
-.navlinks {display:flex;flex-wrap:wrap;gap:5px}
-button {cursor:pointer;font-family:inherit}
-.navlinks button,.theme {
-    background:transparent;
-    color:var(--text);
-    border:1px solid transparent;
-    border-radius:9px;
-    padding:8px 10px;
-}
-.navlinks button:hover,.navlinks button.active {
-    background:var(--card2);
-    border-color:var(--border);
-    color:var(--pink);
-}
-.theme {border-color:var(--border)}
-main {max-width:1100px;margin:auto;padding:25px 16px 50px}
-.page {display:none;animation:appear .25s ease}
-.page.active {display:block}
-@keyframes appear {
-    from {opacity:0;transform:translateY(5px)}
-    to {opacity:1;transform:translateY(0)}
-}
-.hero {
-    text-align:center;
-    padding:60px 18px;
-    border:1px solid var(--border);
-    border-radius:24px;
-    background:radial-gradient(ellipse at top,#75539166,transparent 65%),var(--card);
-    margin-bottom:30px;
-}
-.hero-icon {font-size:4rem}
-h1 {font-size:clamp(2.5rem,7vw,4.5rem);color:var(--pink);line-height:1.2}
-h2 {font-size:2rem;margin-bottom:10px}
-h3 {margin-bottom:8px}
-p {color:var(--muted);margin-bottom:8px}
-.title {text-align:center;margin:22px 0 28px}
-.primary,.secondary {
-    border:0;
-    border-radius:10px;
-    padding:11px 16px;
-    font-weight:bold;
-    margin:5px 3px;
-}
-.primary {background:var(--pink);color:#25142e}
-.secondary {background:var(--card2);color:var(--text);border:1px solid var(--border)}
-.primary:hover,.secondary:hover {filter:brightness(1.08)}
-.grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-    gap:15px;
-    margin:20px 0;
-}
-.card {
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:20px;
-    margin-bottom:15px;
-}
-.icon {font-size:2rem;margin-bottom:8px}
-.center {text-align:center}
-.lesson {
-    background:var(--card);
-    border:1px solid var(--border);
-    padding:17px;
-    border-radius:13px;
-    margin:12px 0;
-}
-input[type=text],input[type=search],textarea {
-    width:100%;
-    background:var(--bg);
-    color:var(--text);
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:12px;
-    font:inherit;
-    margin:8px 0;
-}
-textarea {resize:vertical}
-.note {color:var(--pink);font-weight:bold}
 
-/* Piano keyboard */
-.keyboard-wrap {
-    overflow-x:auto;
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:15px;
-    margin:15px 0;
+body.dark {
+    --bg: #20182c;
+    --card: #30243f;
+    --text: #fff3fc;
+    --border: #554064;
 }
-.keyboard {
-    position:relative;
-    display:flex;
-    height:190px;
-    width:520px;
-    min-width:520px;
-    margin:auto;
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: .2s;
 }
-.white-key {
-    flex:0 0 40px;
-    width:40px;
-    height:185px;
-    background:#fffdf8;
-    border:1px solid #aaa;
-    color:#282236;
-    border-radius:0 0 7px 7px;
-    display:flex;
-    align-items:flex-end;
-    justify-content:center;
-    padding-bottom:12px;
-    font-size:12px;
-    font-weight:bold;
-    position:relative;
+
+header {
+    text-align: center;
+    padding: 28px 15px;
+    background: linear-gradient(135deg, #f9b8dc, #c8b5ff);
+    color: #38233f;
 }
-.black-key {
-    position:absolute;
-    z-index:2;
-    width:29px;
-    height:112px;
-    background:linear-gradient(#383342,#090910);
-    color:white;
-    border:1px solid #000;
-    border-radius:0 0 5px 5px;
-    padding-top:80px;
-    font-size:10px;
-    box-shadow:0 4px 5px #0006;
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
 }
-.white-key.target,.black-key.target {
-    background:var(--pink);
-    color:#26152e;
-    box-shadow:0 0 20px var(--pink);
-    border:3px solid white;
+
+header p { margin-bottom: 0; }
+
+nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px;
+    background: var(--card);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    border-bottom: 1px solid var(--border);
 }
-.white-key.pressed,.black-key.pressed {
-    background:var(--green);
-    color:#10271c;
+
+button, .file-label {
+    border: none;
+    padding: 11px 16px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s;
 }
-.white-key.wrong,.black-key.wrong {
-    background:#ff9bac;
+
+button:hover, .file-label:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
 }
-#fallArea {
-    position:relative;
-    height:300px;
-    overflow:hidden;
-    border:1px solid var(--border);
-    border-radius:15px;
-    background:linear-gradient(#10172b,#302344);
-    margin:20px 0 0;
+
+button.secondary {
+    background: var(--accent2);
 }
-#fallingNotes {position:absolute;inset:0;pointer-events:none}
-.fall-note {
-    position:absolute;
-    width:38px;
-    height:25px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:var(--pink);
-    color:#26152e;
-    border:2px solid white;
-    border-radius:7px;
-    font-size:10px;
-    font-weight:bold;
-    box-shadow:0 0 14px var(--pink);
+
+main {
+    width: min(1050px, 94%);
+    margin: 25px auto;
 }
-#hitLine {
-    position:absolute;
-    bottom:42px;
-    left:0;
-    right:0;
-    height:3px;
-    background:var(--green);
-    box-shadow:0 0 12px var(--green);
+
+section {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 22px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+    box-shadow: 0 5px 18px #00000008;
 }
-.song-row {
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:14px;
-    border:1px solid var(--border);
-    background:var(--card);
-    border-radius:12px;
-    margin:10px 0;
+
+section.active { display: block; }
+
+h2 { margin-top: 0; }
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin: 7px 0 12px;
+    background: var(--bg);
+    color: var(--text);
 }
-.song-info {flex:1}
-.song-row button {flex-shrink:0}
-.quiz-option {
-    display:block;
-    width:100%;
-    text-align:left;
-    padding:13px;
-    background:var(--card2);
-    color:var(--text);
-    border:1px solid var(--border);
-    border-radius:9px;
-    margin:9px 0;
-    font-size:1rem;
+
+.note {
+    font-size: .92rem;
+    opacity: .85;
+    line-height: 1.5;
 }
-.quiz-option:disabled {opacity:.9}
-.goal {
-    display:flex;
-    gap:10px;
-    align-items:center;
-    background:var(--card);
-    border:1px solid var(--border);
-    padding:12px;
-    border-radius:9px;
-    margin:8px 0;
+
+.song-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
 }
-.goal label {flex:1;overflow-wrap:anywhere}
-.goal.done label {text-decoration:line-through;color:var(--muted)}
-.progress {
-    height:12px;
-    background:var(--card2);
-    border-radius:20px;
-    overflow:hidden;
-    margin:12px 0;
+
+.song-card {
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 16px;
+    background: var(--bg);
 }
-#progressFill {
-    height:100%;
-    width:0;
-    background:linear-gradient(90deg,var(--purple),var(--pink));
+
+.song-card h3 { margin-top: 0; }
+
+#status {
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--bg);
+    margin-top: 12px;
+    white-space: pre-wrap;
 }
+
+#fallingArea {
+    position: relative;
+    height: 260px;
+    background: linear-gradient(180deg, #352444, #171322);
+    border-radius: 15px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.falling-note {
+    position: absolute;
+    width: 42px;
+    height: 25px;
+    border-radius: 8px;
+    background: #ff9ed9;
+    color: #35243d;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    padding-top: 6px;
+    box-shadow: 0 0 12px #ff9ed988;
+}
+
+.piano {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    height: 180px;
+    margin-top: 20px;
+    user-select: none;
+}
+
+.key {
+    position: relative;
+    border: 1px solid #333;
+    border-radius: 0 0 7px 7px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 12px;
+    font-size: 12px;
+}
+
+.white {
+    width: 8.3%;
+    max-width: 75px;
+    height: 180px;
+    background: white;
+    color: #333;
+    z-index: 1;
+}
+
+.black {
+    width: 5%;
+    max-width: 43px;
+    height: 112px;
+    background: #292333;
+    color: white;
+    margin-left: -2.5%;
+    margin-right: -2.5%;
+    z-index: 2;
+    border-color: #111;
+}
+
+.key.active-key {
+    background: #f7a9dc;
+}
+
+.white.active-key { color: #35243d; }
+
+.key-label {
+    display: block;
+    font-size: 10px;
+    opacity: .75;
+}
+
 footer {
-    text-align:center;
-    padding:25px;
-    border-top:1px solid var(--border);
-    color:var(--muted);
+    text-align: center;
+    padding: 25px;
+    opacity: .8;
 }
-footer span {color:var(--pink)}
-[hidden] {display:none!important}
-@media(max-width:650px) {
-    nav {justify-content:center}
-    .navlinks {justify-content:center}
-    .hero {padding:35px 12px}
-    h2 {font-size:1.6rem}
-    #fallArea {height:260px}
+
+@media (max-width: 600px) {
+    header h1 { font-size: 2rem; }
+    section { padding: 15px; }
+    .piano { height: 145px; }
+    .white { height: 145px; }
+    .black { height: 90px; }
+    .key { font-size: 9px; }
 }
 </style>
 </head>
@@ -297,611 +237,562 @@ footer span {color:var(--pink)}
 <body>
 
 <header>
-<nav>
-    <div class="logo">🎹 Piano World</div>
-    <div class="navlinks">
-        <button class="active" data-page="home">Home</button>
-        <button data-page="learn">Lessons</button>
-        <button data-page="player">Play Piano</button>
-        <button data-page="songs">Songs</button>
-        <button data-page="composers">Composers</button>
-        <button data-page="quiz">Quiz</button>
-        <button data-page="goals">My Goals</button>
-    </div>
-    <button class="theme" id="themeButton">🌙</button>
-</nav>
+    <h1>🎹 Piano World</h1>
+    <p>Play songs, learn piano, and discover your music!</p>
+    <p>✨ Your musical journey starts here ✨</p>
 </header>
+
+<nav>
+    <button onclick="showPage('home')">🏠 Home</button>
+    <button onclick="showPage('songs')">🎵 Songs</button>
+    <button onclick="showPage('piano')">🎹 Play Piano</button>
+    <button onclick="showPage('falling')">🌧️ Falling Notes</button>
+    <button onclick="showPage('import')">📂 Import Music</button>
+    <button class="secondary" onclick="toggleTheme()">🌙 Theme</button>
+</nav>
 
 <main>
 
-<!-- HOME -->
-<section id="home" class="page active">
-    <div class="hero">
-        <div class="hero-icon">🎹</div>
-        <h1>Piano World</h1>
-        <p>Explore · Learn · Play · Dream</p>
-        <p>Your little universe for discovering and enjoying piano music.</p>
-        <button class="primary" onclick="showPage('player')">🎵 Start Playing</button>
-        <button class="secondary" onclick="showPage('learn')">Learn Piano</button>
-    </div>
+<section id="home" class="active">
+    <h2>Welcome to Piano World! 💗</h2>
+    <p>
+        Learn piano at your own pace! Choose a song, play the keys,
+        import a MIDI song, or practise with falling notes.
+    </p>
 
-    <h2 class="center">Explore Your Musical World ✨</h2>
-
-    <div class="grid">
-        <div class="card"><div class="icon">🎹</div><h3>Interactive Piano</h3><p>Play using your laptop or mouse.</p><button class="primary" onclick="showPage('player')">Play Now</button></div>
-        <div class="card"><div class="icon">🎼</div><h3>Learn Piano</h3><p>Discover notes, rhythms and chords.</p><button class="secondary" onclick="showPage('learn')">Learn</button></div>
-        <div class="card"><div class="icon">🎵</div><h3>Song Library</h3><p>Explore pieces to learn.</p><button class="secondary" onclick="showPage('songs')">Discover</button></div>
-        <div class="card"><div class="icon">🧠</div><h3>Piano Quiz</h3><p>Test your musical knowledge.</p><button class="secondary" onclick="showPage('quiz')">Take Quiz</button></div>
-        <div class="card"><div class="icon">🎻</div><h3>Composers</h3><p>Meet famous musical artists.</p><button class="secondary" onclick="showPage('composers')">Explore</button></div>
-        <div class="card"><div class="icon">⭐</div><h3>My Progress</h3><p>Make goals and celebrate progress.</p><button class="secondary" onclick="showPage('goals')">My Goals</button></div>
-    </div>
-</section>
-
-<!-- LESSONS -->
-<section id="learn" class="page">
-    <div class="title"><h2>🎼 Piano Lessons</h2><p>Learn a little more every day!</p></div>
-    <div class="lesson"><h3>🎹 The Notes</h3><p>The seven musical note names are C, D, E, F, G, A and B. Then the pattern repeats.</p></div>
-    <div class="lesson"><h3>🎵 The White Keys</h3><p>White keys play natural notes. Black keys play sharps or flats, depending on the musical context.</p></div>
-    <div class="lesson"><h3>🎶 Rhythm</h3><p>Whole notes, half notes, quarter notes and eighth notes have different durations.</p></div>
-    <div class="lesson"><h3>🎼 Chords</h3><p>A chord is a group of notes played together. Chords help accompany melodies.</p></div>
-    <div class="lesson"><h3>🌟 Piano Fact</h3><p>A standard full-size piano has 88 keys: 52 white keys and 36 black keys.</p></div>
-    <button class="primary" onclick="showPage('player')">Try the Piano →</button>
-</section>
-
-<!-- INTERACTIVE PIANO GAME -->
-<section id="player" class="page">
-    <div class="title">
-        <h2>🎹 Falling Notes Piano</h2>
-        <p>Enter a song, press play, and follow the falling notes!</p>
-    </div>
-
-    <div class="card">
-        <h3>🎵 Enter Your Song</h3>
-        <p>Type notes separated by spaces. Use C4, D4, E4, F4, G4, A4, B4 and C5. Add # for sharp notes, such as C#4.</p>
-        <textarea id="songInput" rows="3" placeholder="C4 D4 E4 C4 | C4 D4 E4 C4 | E4 F4 G4"></textarea>
-        <button class="secondary" onclick="loadExample()">🎼 Load Example</button>
-        <button class="primary" id="playButton" onclick="startSong()">▶ Play Song</button>
-        <button class="secondary" onclick="stopSong()">⏹ Stop</button>
-        <p id="songMessage" aria-live="polite">Load an example or enter your own notes!</p>
-        <h3>⭐ Score: <span id="songScore">0</span></h3>
-    </div>
-
-    <div id="fallArea">
-        <p style="position:absolute;top:8px;left:12px;color:white">Follow the notes down!</p>
-        <div id="fallingNotes"></div>
-        <div id="hitLine"></div>
-    </div>
-
-    <div class="card" style="margin-top:15px">
-        <h3 class="center">🎹 Your Piano Keyboard</h3>
-        <p class="center">Click a key or use the matching key on your laptop.</p>
-        <p class="center note">A W S E D F T G Y H U J K</p>
-        <div class="keyboard-wrap">
-            <div id="keyboardKeys" class="keyboard"></div>
+    <div class="song-grid">
+        <div class="song-card">
+            <h3>🎼 Discover Songs</h3>
+            <p>Explore the built-in song collection.</p>
+            <button onclick="showPage('songs')">Explore Songs</button>
         </div>
-        <p id="currentNote" class="center note">Ready to play!</p>
-        <p class="center">Green = correct note · Pink glow = target note</p>
+
+        <div class="song-card">
+            <h3>🎹 Play Piano</h3>
+            <p>Use your mouse or computer keyboard.</p>
+            <button onclick="showPage('piano')">Play Now</button>
+        </div>
+
+        <div class="song-card">
+            <h3>📂 Import a Song</h3>
+            <p>Load a MIDI file from your device or a compatible link.</p>
+            <button onclick="showPage('import')">Import Music</button>
+        </div>
     </div>
 </section>
 
-<!-- SONG LIBRARY -->
-<section id="songs" class="page">
-    <div class="title"><h2>🎵 Song Library</h2><p>Discover music and choose your next challenge.</p></div>
-    <input id="songSearch" type="search" placeholder="🔎 Search songs or composers...">
-    <div id="songList"></div>
+<section id="songs">
+    <h2>🎵 Song Library</h2>
+    <p class="note">
+        These are simplified piano melodies of traditional songs and
+        classical compositions. Choose one to play it.
+    </p>
+
+    <div id="songList" class="song-grid"></div>
 </section>
 
-<!-- COMPOSERS -->
-<section id="composers" class="page">
-    <div class="title"><h2>🎻 Famous Composers</h2><p>Discover musicians who shaped the world of music.</p></div>
-    <div class="grid">
-        <div class="card"><div class="icon">🎼</div><h3>Beethoven</h3><p>1770–1827</p><p>German composer famous for symphonies and piano music.</p></div>
-        <div class="card"><div class="icon">🌹</div><h3>Frédéric Chopin</h3><p>1810–1849</p><p>Polish composer known for expressive piano works and nocturnes.</p></div>
-        <div class="card"><div class="icon">🎻</div><h3>J. S. Bach</h3><p>1685–1750</p><p>German Baroque composer known for intricate musical works.</p></div>
-        <div class="card"><div class="icon">🌙</div><h3>Claude Debussy</h3><p>1862–1918</p><p>French composer known for atmospheric and colorful music.</p></div>
-        <div class="card"><div class="icon">✨</div><h3>Yiruma</h3><p>Born 1978</p><p>South Korean pianist and composer known for contemporary piano melodies.</p></div>
-        <div class="card"><div class="icon">🎶</div><h3>Mozart</h3><p>1756–1791</p><p>Austrian composer who created many famous works, including piano sonatas.</p></div>
-    </div>
+<section id="piano">
+    <h2>🎹 Play the Piano</h2>
+    <p>Click a key or use your computer keyboard.</p>
+
+    <p class="note">
+        Keyboard layout: A W S E D F T G Y H U J K
+    </p>
+
+    <div class="piano" id="pianoKeys"></div>
+
+    <p id="currentNote">Press a piano key to begin!</p>
+
+    <button onclick="stopSong()">⏹ Stop Song</button>
 </section>
 
-<!-- QUIZ -->
-<section id="quiz" class="page">
-    <div class="title"><h2>🧠 Piano Quiz</h2><p>Test your musical knowledge!</p></div>
-    <div class="card">
-        <p id="quizProgress">Question 1</p>
-        <h3 id="quizQuestion"></h3>
-        <div id="quizOptions"></div>
-        <p id="quizFeedback" aria-live="polite"></p>
-        <button class="primary" id="nextQuestion" hidden>Next Question →</button>
-        <h3 id="quizScore"></h3>
-        <button class="secondary" id="restartQuiz" hidden>Try Again</button>
-    </div>
+<section id="falling">
+    <h2>🌧️ Falling Notes</h2>
+    <p>Choose a song and watch its notes fall!</p>
+
+    <select id="fallingSong"></select>
+    <button onclick="startFalling()">▶ Start Falling Notes</button>
+    <button class="secondary" onclick="stopSong()">⏹ Stop</button>
+
+    <div id="fallingArea"></div>
+
+    <p class="note">
+        This is a visual practice mode. The notes move down the screen
+        while the selected melody plays.
+    </p>
 </section>
 
-<!-- GOALS -->
-<section id="goals" class="page">
-    <div class="title"><h2>⭐ My Piano Journey</h2><p>Little steps lead to big achievements!</p></div>
-    <div class="card">
-        <h3>My Goals</h3>
-        <p>Add your own piano goals and check them off when completed.</p>
-        <form id="goalForm">
-            <input id="goalInput" type="text" maxlength="120" required placeholder="Example: Learn a new song">
-            <button class="primary" type="submit">+ Add Goal</button>
-        </form>
-        <div id="goalList"></div>
-        <h3>My Progress</h3>
-        <p id="progressText">0 completed</p>
-        <div class="progress"><div id="progressFill"></div></div>
-    </div>
-    <div class="card">
-        <h3>💗 Goal Ideas</h3>
-        <button class="secondary" onclick="addGoal('Learn a new song')">+ Learn a song</button>
-        <button class="secondary" onclick="addGoal('Practice a scale')">+ Practice a scale</button>
-        <button class="secondary" onclick="addGoal('Learn three chords')">+ Learn three chords</button>
-        <button class="secondary" onclick="addGoal('Discover a composer')">+ Discover a composer</button>
+<section id="import">
+    <h2>📂 Import Your Own Song</h2>
+
+    <h3>Option 1: Upload a MIDI file</h3>
+    <p class="note">
+        MIDI files contain note information that Piano World can read.
+        They are different from MP3 audio files.
+    </p>
+
+    <input type="file" id="midiFile" accept=".mid,.midi,audio/midi">
+    <button onclick="loadMidiFile()">🎵 Load MIDI File</button>
+
+    <hr style="border-color:var(--border); margin:25px 0;">
+
+    <h3>Option 2: Paste a direct MIDI file link</h3>
+    <input
+        type="url"
+        id="midiURL"
+        placeholder="Paste a direct link to a .mid file"
+    >
+    <button onclick="loadMidiURL()">🔗 Load Song Link</button>
+
+    <p class="note">
+        The link must point directly to a MIDI file, not just a YouTube,
+        Spotify, or other music-page URL. Some websites block outside
+        access, so a link may not work even if it opens in your browser.
+        If that happens, download a MIDI file you have permission to use
+        and upload it above.
+    </p>
+
+    <div id="status">No song imported yet.</div>
+
+    <div id="importControls" style="display:none; margin-top:15px;">
+        <h3 id="importedTitle">Imported Song</h3>
+        <button onclick="playImportedSong()">▶ Play Imported Song</button>
+        <button class="secondary" onclick="showPage('falling'); startImportedFalling()">
+            🌧️ Falling Notes
+        </button>
     </div>
 </section>
 
 </main>
 
 <footer>
-    <p>🎹 <span>Piano World</span> · Made with 💗 by <span>Shanelle et Kaylee</span></p>
-    <p>Explore music, one note at a time.</p>
+    🎹 Piano World · Made with 💗 by <strong>Shanelle</strong>
 </footer>
 
 <script>
-// NAVIGATION
-function showPage(id) {
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-    document.querySelectorAll(".navlinks button").forEach(b =>
-        b.classList.toggle("active", b.dataset.page === id)
-    );
-    window.scrollTo({top:0,behavior:"smooth"});
-}
-document.querySelectorAll(".navlinks button").forEach(b =>
-    b.addEventListener("click", () => showPage(b.dataset.page))
-);
-
-// THEME
-const themeButton = document.getElementById("themeButton");
-function setTheme(theme) {
-    document.body.classList.toggle("light",theme === "light");
-    themeButton.textContent = theme === "light" ? "🌙" : "☀️";
-    try { localStorage.setItem("pianoTheme",theme); } catch(e) {}
-}
-try { setTheme(localStorage.getItem("pianoTheme") || "dark"); }
-catch(e) { setTheme("dark"); }
-themeButton.addEventListener("click",() =>
-    setTheme(document.body.classList.contains("light") ? "dark" : "light")
-);
-
-// PIANO NOTES AND LAPTOP KEYS
-const notes = [
-    {name:"C4",freq:261.63,key:"a",type:"white"},
-    {name:"C#4",freq:277.18,key:"w",type:"black"},
-    {name:"D4",freq:293.66,key:"s",type:"white"},
-    {name:"D#4",freq:311.13,key:"e",type:"black"},
-    {name:"E4",freq:329.63,key:"d",type:"white"},
-    {name:"F4",freq:349.23,key:"f",type:"white"},
-    {name:"F#4",freq:369.99,key:"t",type:"black"},
-    {name:"G4",freq:392.00,key:"g",type:"white"},
-    {name:"G#4",freq:415.30,key:"y",type:"black"},
-    {name:"A4",freq:440,key:"h",type:"white"},
-    {name:"A#4",freq:466.16,key:"u",type:"black"},
-    {name:"B4",freq:493.88,key:"j",type:"white"},
-    {name:"C5",freq:523.25,key:"k",type:"white"}
+const builtInSongs = [
+    {
+        title: "Twinkle, Twinkle, Little Star",
+        artist: "Traditional",
+        notes: ["C4","C4","G4","G4","A4","A4","G4",
+                "F4","F4","E4","E4","D4","D4","C4"]
+    },
+    {
+        title: "Ode to Joy",
+        artist: "Ludwig van Beethoven",
+        notes: ["E4","E4","F4","G4","G4","F4","E4","D4",
+                "C4","C4","D4","E4","E4","D4","D4"]
+    },
+    {
+        title: "Mary Had a Little Lamb",
+        artist: "Traditional",
+        notes: ["E4","D4","C4","D4","E4","E4","E4",
+                "D4","D4","D4","E4","G4","G4"]
+    },
+    {
+        title: "Jingle Bells",
+        artist: "James Lord Pierpont",
+        notes: ["E4","E4","E4","E4","E4","E4","E4",
+                "G4","C4","D4","E4","F4","F4","F4",
+                "F4","F4","E4","E4","E4","E4","D4","D4","E4","D4","G4"]
+    },
+    {
+        title: "Hot Cross Buns",
+        artist: "Traditional",
+        notes: ["E4","D4","C4","E4","D4","C4",
+                "C4","C4","C4","C4","D4","D4","D4","D4",
+                "E4","D4","C4"]
+    },
+    {
+        title: "Für Elise (opening)",
+        artist: "Ludwig van Beethoven",
+        notes: ["E5","D#5","E5","D#5","E5","B4","D5","C5","A4"]
+    }
 ];
 
-const keyboard = document.getElementById("keyboardKeys");
-const keyButtons = {};
-let audioContext = null;
+const keyMap = {
+    "a":"C4", "w":"C#4", "s":"D4", "e":"D#4",
+    "d":"E4", "f":"F4", "t":"F#4", "g":"G4",
+    "y":"G#4", "h":"A4", "u":"A#4", "j":"B4",
+    "k":"C5"
+};
 
-notes.forEach((note,index) => {
-    const button = document.createElement("button");
-    button.className = note.type === "white" ? "white-key" : "black-key";
-    button.textContent = note.name;
-    button.dataset.note = note.name;
-    button.title = `${note.name} — laptop key ${note.key.toUpperCase()}`;
+const pianoNotes = [
+    "C4","C#4","D4","D#4","E4","F4","F#4",
+    "G4","G#4","A4","A#4","B4","C5"
+];
 
-    if(note.type === "black") {
-        button.style.left = (index * 40 - 14.5) + "px";
-    }
+let audioContext;
+let activeOscillators = [];
+let importedNotes = [];
+let importedTitle = "Imported Song";
+let playbackTimers = [];
+let fallingTimer = null;
+let songPlaying = false;
 
-    button.addEventListener("pointerdown",() => playNote(note.name,true));
-    keyboard.appendChild(button);
-    keyButtons[note.name] = button;
-});
-
-function playNote(name,playerInput=false) {
-    const note = notes.find(n => n.name === name);
-    if(!note) return;
-
-    try {
-        const AudioClass = window.AudioContext || window.webkitAudioContext;
-        if(!AudioClass) throw new Error("Audio not supported");
-        if(!audioContext) audioContext = new AudioClass();
-        if(audioContext.state === "suspended") audioContext.resume();
-
-        const oscillator = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        oscillator.type = "triangle";
-        oscillator.frequency.value = note.freq;
-        gain.gain.setValueAtTime(0.0001,audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.18,audioContext.currentTime+0.02);
-        gain.gain.exponentialRampToValueAtTime(0.0001,audioContext.currentTime+0.5);
-        oscillator.connect(gain);
-        gain.connect(audioContext.destination);
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime+0.52);
-    } catch(e) {}
-
-    document.getElementById("currentNote").textContent = "🎵 Playing " + name;
-
-    const button = keyButtons[name];
-    button.classList.add("pressed");
-    setTimeout(() => button.classList.remove("pressed"),180);
-
-    if(playerInput) checkAnswer(name);
+function showPage(id) {
+    document.querySelectorAll("main section").forEach(section => {
+        section.classList.remove("active");
+    });
+    document.getElementById(id).classList.add("active");
 }
 
-document.addEventListener("keydown",event => {
-    if(event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
-    const tag = event.target.tagName;
-    if(tag === "INPUT" || tag === "TEXTAREA" || event.target.isContentEditable) return;
-
-    const note = notes.find(n => n.key === event.key.toLowerCase());
-    if(note) {
-        event.preventDefault();
-        playNote(note.name,true);
-    }
-});
-
-// FALLING NOTES GAME
-const fallArea = document.getElementById("fallArea");
-const fallingNotes = document.getElementById("fallingNotes");
-let song = [];
-let songIndex = 0;
-let currentTarget = null;
-let gameRunning = false;
-let gameFrame = null;
-let score = 0;
-let lastTime = 0;
-let spawnTimer = 0;
-
-function loadExample() {
-    document.getElementById("songInput").value =
-        "C4 D4 E4 C4 | C4 D4 E4 C4 | E4 F4 G4 | E4 F4 G4";
-    document.getElementById("songMessage").textContent =
-        "Example loaded! Press Play Song.";
+function toggleTheme() {
+    document.body.classList.toggle("dark");
 }
 
-function parseSong(text) {
-    const tokens = text.trim().split(/[\s,|]+/).filter(Boolean);
-    if(!tokens.length) return {error:"Please enter some notes first."};
-    if(tokens.length > 150) return {error:"Please use 150 notes or fewer."};
-
-    const result = [];
-    for(const token of tokens) {
-        const name = token.toUpperCase().replace("♯","#");
-        const note = notes.find(n => n.name === name);
-        if(!note) return {error:`Unknown note: ${token}. Try C4, D4, E4 or C#4.`};
-        result.push(note.name);
+function ensureAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
-    return {song:result};
+    if (audioContext.state === "suspended") audioContext.resume();
 }
 
-function startSong() {
-    stopSong();
+function noteFrequency(note) {
+    const match = note.match(/^([A-G])(#?)(-?\d+)$/i);
+    if (!match) return null;
 
-    const result = parseSong(document.getElementById("songInput").value);
-    if(result.error) {
-        document.getElementById("songMessage").textContent = result.error;
-        return;
-    }
+    const names = {
+        C:0, "C#":1, D:2, "D#":3, E:4,
+        F:5, "F#":6, G:7, "G#":8, A:9,
+        "A#":10, B:11
+    };
 
-    song = result.song;
-    songIndex = 0;
-    score = 0;
-    currentTarget = null;
-    gameRunning = true;
-    lastTime = performance.now();
-    spawnTimer = 0;
+    const key = match[1].toUpperCase() + match[2];
+    const octave = Number(match[3]);
+    const midiNumber = (octave + 1) * 12 + names[key];
 
-    document.getElementById("songScore").textContent = "0";
-    document.getElementById("songMessage").textContent =
-        "Follow the falling notes and press the matching keys!";
+    return 440 * Math.pow(2, (midiNumber - 69) / 12);
+}
 
-    fallingNotes.innerHTML = "";
-    gameFrame = requestAnimationFrame(gameLoop);
+function playNote(note, duration = 0.35) {
+    ensureAudio();
+
+    const frequency = noteFrequency(note);
+    if (!frequency) return;
+
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    osc.type = "sine";
+    osc.frequency.value = frequency;
+
+    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+        0.22, audioContext.currentTime + 0.02
+    );
+    gain.gain.exponentialRampToValueAtTime(
+        0.0001, audioContext.currentTime + duration
+    );
+
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+
+    osc.start();
+    osc.stop(audioContext.currentTime + duration + 0.03);
+
+    activeOscillators.push(osc);
+    highlightKey(note);
+    document.getElementById("currentNote").textContent =
+        "Playing: " + note;
+}
+
+function highlightKey(note) {
+    document.querySelectorAll(".key").forEach(key => {
+        if (key.dataset.note === note) {
+            key.classList.add("active-key");
+            setTimeout(() => key.classList.remove("active-key"), 220);
+        }
+    });
 }
 
 function stopSong() {
-    gameRunning = false;
-    if(gameFrame) cancelAnimationFrame(gameFrame);
-    gameFrame = null;
-    currentTarget = null;
-    fallingNotes.innerHTML = "";
+    playbackTimers.forEach(timer => clearTimeout(timer));
+    playbackTimers = [];
+    songPlaying = false;
 
-    Object.values(keyButtons).forEach(b => b.classList.remove("target"));
+    if (fallingTimer) {
+        clearInterval(fallingTimer);
+        fallingTimer = null;
+    }
+
+    document.getElementById("fallingArea").innerHTML = "";
 }
 
-function gameLoop(now) {
-    if(!gameRunning) return;
+function playNotes(notes, interval = 380) {
+    stopSong();
+    songPlaying = true;
 
-    const delta = Math.min((now-lastTime)/1000,0.05);
-    lastTime = now;
+    notes.forEach((note, index) => {
+        const timer = setTimeout(() => {
+            if (songPlaying) playNote(note, interval / 1000 * 0.85);
+        }, index * interval);
 
-    // Create a new falling note after the previous one is hit or missed.
-    if(!currentTarget && songIndex < song.length) {
-        spawnTimer += delta;
-        if(spawnTimer >= 0.65) {
-            spawnTimer = 0;
-            const name = song[songIndex++];
-            const note = notes.find(n => n.name === name);
-            const element = document.createElement("div");
-            element.className = "fall-note";
-            element.textContent = name;
+        playbackTimers.push(timer);
+    });
 
-            const index = notes.findIndex(n => n.name === name);
-            const whiteIndex = notes.slice(0,index).filter(n => n.type === "white").length;
-            element.style.left = (whiteIndex*40+3) + "px";
-            element.style.top = "-30px";
-            fallingNotes.appendChild(element);
-
-            currentTarget = {
-                name,
-                element,
-                y:-30,
-                speed:145,
-                hit:false
-            };
-
-            Object.values(keyButtons).forEach(b => b.classList.remove("target"));
-            keyButtons[name].classList.add("target");
-        }
-    }
-
-    if(currentTarget) {
-        currentTarget.y += currentTarget.speed*delta;
-        currentTarget.element.style.top = currentTarget.y+"px";
-
-        // Allow time to play the note as it approaches the green line.
-        if(currentTarget.y > fallArea.clientHeight-75) {
-            currentTarget.element.style.background = "#8df0be";
-        }
-
-        if(currentTarget.y >= fallArea.clientHeight-45) {
-            currentTarget.element.remove();
-            keyButtons[currentTarget.name].classList.remove("target");
-            currentTarget = null;
-            document.getElementById("songMessage").textContent =
-                "Note missed! Watch for the next one.";
-            spawnTimer = 0;
-        }
-    }
-
-    if(songIndex >= song.length && !currentTarget) {
-        gameRunning = false;
-        document.getElementById("songMessage").textContent =
-            `🎉 Song finished! Your score is ${score}.`;
-        return;
-    }
-
-    gameFrame = requestAnimationFrame(gameLoop);
+    playbackTimers.push(setTimeout(() => {
+        songPlaying = false;
+    }, notes.length * interval));
 }
 
-function checkAnswer(name) {
-    if(!gameRunning || !currentTarget) return;
+function createPiano() {
+    const piano = document.getElementById("pianoKeys");
 
-    const button = keyButtons[name];
+    pianoNotes.forEach(note => {
+        const key = document.createElement("button");
+        key.className = "key " + (note.includes("#") ? "black" : "white");
+        key.dataset.note = note;
+        key.innerHTML = note + "<span class='key-label'>" +
+            (Object.keys(keyMap).find(k => keyMap[k] === note) || "") +
+            "</span>";
 
-    if(name === currentTarget.name) {
-        score += 10;
-        document.getElementById("songScore").textContent = score;
-        currentTarget.element.remove();
-        currentTarget = null;
-        button.classList.remove("target");
-        document.getElementById("songMessage").textContent = "✅ Perfect! Keep going!";
-        spawnTimer = 0;
-    } else {
-        button.classList.add("wrong");
-        setTimeout(() => button.classList.remove("wrong"),200);
-    }
-}
-
-// SONG LIBRARY
-const songs = [
-    {title:"Für Elise",artist:"Beethoven",level:"Intermediate",notes:"E4 D#4 E4 D#4 E4 B4 D4 C4 A4"},
-    {title:"Simple C Major Scale",artist:"Practice",level:"Beginner",notes:"C4 D4 E4 F4 G4 A4 B4 C5"},
-    {title:"River Flows in You",artist:"Yiruma",level:"Intermediate",notes:"C4 E4 G4 E4 D4 F4 A4 F4"},
-    {title:"Little Practice Melody",artist:"Piano World",level:"Beginner",notes:"C4 D4 E4 C4 E4 F4 G4"},
-    {title:"Moonlight Practice",artist:"Piano World",level:"Beginner",notes:"A4 C4 E4 A4 G4 C4 E4 G4"}
-];
-
-const songList = document.getElementById("songList");
-
-function renderSongs(filter="") {
-    songList.innerHTML = "";
-    const matches = songs.filter(s =>
-        (s.title+" "+s.artist+" "+s.level).toLowerCase().includes(filter.toLowerCase())
-    );
-
-    if(!matches.length) {
-        songList.textContent = "No songs found.";
-        return;
-    }
-
-    matches.forEach(s => {
-        const row = document.createElement("div");
-        row.className = "song-row";
-
-        const info = document.createElement("div");
-        info.className = "song-info";
-        const title = document.createElement("h3");
-        title.textContent = "🎵 "+s.title;
-        const desc = document.createElement("p");
-        desc.textContent = s.artist+" · "+s.level;
-        info.append(title,desc);
-
-        const button = document.createElement("button");
-        button.className = "primary";
-        button.textContent = "Play";
-        button.addEventListener("click",() => {
-            showPage("player");
-            document.getElementById("songInput").value = s.notes;
-            startSong();
-        });
-
-        row.append(info,button);
-        songList.appendChild(row);
+        key.addEventListener("click", () => playNote(note));
+        piano.appendChild(key);
     });
 }
 
-document.getElementById("songSearch").addEventListener("input",e => renderSongs(e.target.value));
-renderSongs();
+document.addEventListener("keydown", event => {
+    if (event.repeat || event.target.matches("input,textarea,select")) return;
 
-// PIANO QUIZ
-const questions = [
-    {q:"How many keys are on a standard piano?",o:["61","76","88","100"],a:2,why:"A standard piano has 88 keys."},
-    {q:"Which note comes after C?",o:["A","B","D","F"],a:2,why:"The note after C is D."},
-    {q:"Who composed Für Elise?",o:["Chopin","Beethoven","Mozart","Bach"],a:1,why:"Für Elise is a famous Beethoven piece."},
-    {q:"What does forte mean?",o:["Softly","Loudly","Slowly","Silently"],a:1,why:"Forte means to play loudly."},
-    {q:"How many natural note names are there?",o:["5","6","7","12"],a:2,why:"The seven names are C, D, E, F, G, A and B."},
-    {q:"Which key is mapped to C4 on this website?",o:["A","S","D","K"],a:0,why:"Press A to play C4."},
-    {q:"What is a chord?",o:["One note only","Several notes together","A piano pedal","A composer"],a:1,why:"A chord is a group of notes played together."}
-];
-
-let qIndex = 0;
-let qScore = 0;
-let qAnswered = false;
-
-function renderQuestion() {
-    const q = questions[qIndex];
-    qAnswered = false;
-    document.getElementById("quizProgress").textContent = `Question ${qIndex+1} of ${questions.length}`;
-    document.getElementById("quizQuestion").textContent = q.q;
-    document.getElementById("quizFeedback").textContent = "";
-    document.getElementById("quizScore").textContent = "";
-    document.getElementById("nextQuestion").hidden = true;
-    document.getElementById("restartQuiz").hidden = true;
-
-    const options = document.getElementById("quizOptions");
-    options.innerHTML = "";
-
-    q.o.forEach((option,i) => {
-        const button = document.createElement("button");
-        button.className = "quiz-option";
-        button.textContent = option;
-
-        button.addEventListener("click",() => {
-            if(qAnswered) return;
-            qAnswered = true;
-
-            if(i===q.a) {
-                qScore++;
-                document.getElementById("quizFeedback").textContent = "✅ Correct! "+q.why;
-            } else {
-                document.getElementById("quizFeedback").textContent = "💡 "+q.why;
-            }
-
-            [...options.children].forEach((b,j) => {
-                b.disabled = true;
-                if(j===q.a) b.style.borderColor="#8df0be";
-            });
-
-            if(qIndex<questions.length-1) {
-                document.getElementById("nextQuestion").hidden = false;
-            } else {
-                document.getElementById("quizScore").textContent = `Final score: ${qScore}/${questions.length} ⭐`;
-                document.getElementById("restartQuiz").hidden = false;
-            }
-        });
-
-        options.appendChild(button);
-    });
-}
-
-document.getElementById("nextQuestion").addEventListener("click",() => {
-    qIndex++;
-    renderQuestion();
-});
-document.getElementById("restartQuiz").addEventListener("click",() => {
-    qIndex=0;
-    qScore=0;
-    renderQuestion();
-});
-renderQuestion();
-
-// GOALS SAVED IN THIS BROWSER
-let goals = [];
-try {
-    const saved = JSON.parse(localStorage.getItem("pianoGoals") || "[]");
-    if(Array.isArray(saved)) goals = saved.filter(g => g && typeof g.text==="string" && typeof g.done==="boolean");
-} catch(e) {}
-
-function saveGoals() {
-    try { localStorage.setItem("pianoGoals",JSON.stringify(goals)); } catch(e) {}
-}
-
-function addGoal(text) {
-    text = text.trim();
-    if(!text) return;
-    goals.push({text:text.slice(0,120),done:false});
-    saveGoals();
-    renderGoals();
-}
-
-document.getElementById("goalForm").addEventListener("submit",e => {
-    e.preventDefault();
-    const input = document.getElementById("goalInput");
-    addGoal(input.value);
-    input.value = "";
+    const note = keyMap[event.key.toLowerCase()];
+    if (note) playNote(note);
 });
 
-function renderGoals() {
-    const list = document.getElementById("goalList");
+function renderSongs() {
+    const list = document.getElementById("songList");
+    const fallingSelect = document.getElementById("fallingSong");
+
     list.innerHTML = "";
+    fallingSelect.innerHTML = "";
 
-    goals.forEach((goal,i) => {
-        const row = document.createElement("div");
-        row.className = "goal"+(goal.done?" done":"");
+    builtInSongs.forEach((song, index) => {
+        const card = document.createElement("div");
+        card.className = "song-card";
 
-        const check = document.createElement("input");
-        check.type = "checkbox";
-        check.checked = goal.done;
-        check.setAttribute("aria-label","Mark goal complete");
-        check.addEventListener("change",() => {
-            goals[i].done = check.checked;
-            saveGoals();
-            renderGoals();
-        });
+        const title = document.createElement("h3");
+        title.textContent = "🎵 " + song.title;
 
-        const label = document.createElement("label");
-        label.textContent = goal.text;
+        const artist = document.createElement("p");
+        artist.textContent = song.artist;
 
-        const remove = document.createElement("button");
-        remove.className = "secondary";
-        remove.textContent = "✕";
-        remove.setAttribute("aria-label","Delete goal");
-        remove.addEventListener("click",() => {
-            goals.splice(i,1);
-            saveGoals();
-            renderGoals();
-        });
+        const play = document.createElement("button");
+        play.textContent = "▶ Play Song";
+        play.onclick = () => playNotes(song.notes);
 
-        row.append(check,label,remove);
-        list.appendChild(row);
+        const fall = document.createElement("button");
+        fall.textContent = "🌧️ Falling Notes";
+        fall.className = "secondary";
+        fall.style.marginTop = "8px";
+        fall.onclick = () => {
+            showPage("falling");
+            fallingSelect.value = String(index);
+            startFalling();
+        };
+
+        card.append(title, artist, play, document.createElement("br"), fall);
+        list.appendChild(card);
+
+        const option = document.createElement("option");
+        option.value = String(index);
+        option.textContent = song.title;
+        fallingSelect.appendChild(option);
     });
-
-    const completed = goals.filter(g => g.done).length;
-    const percent = goals.length ? Math.round(completed/goals.length*100) : 0;
-    document.getElementById("progressText").textContent =
-        `${completed} of ${goals.length} goals completed · ${percent}%`;
-    document.getElementById("progressFill").style.width = percent+"%";
 }
 
-renderGoals();
+function startFalling() {
+    const index = Number(document.getElementById("fallingSong").value);
+    const song = builtInSongs[index];
+
+    if (song) {
+        showPage("falling");
+        startFallingNotes(song.notes);
+        playNotes(song.notes, 550);
+    }
+}
+
+function startImportedFalling() {
+    if (importedNotes.length) {
+        startFallingNotes(importedNotes);
+        playImportedSong();
+    }
+}
+
+function startFallingNotes(notes) {
+    stopSong();
+
+    const area = document.getElementById("fallingArea");
+    area.innerHTML = "";
+
+    let index = 0;
+
+    fallingTimer = setInterval(() => {
+        if (index >= notes.length) {
+            clearInterval(fallingTimer);
+            fallingTimer = null;
+            return;
+        }
+
+        const note = notes[index++];
+        const block = document.createElement("div");
+        block.className = "falling-note";
+        block.textContent = note;
+
+        const left = Math.max(
+            0,
+            Math.random() * Math.max(0, area.clientWidth - 48)
+        );
+
+        block.style.left = left + "px";
+        block.style.top = "-30px";
+        area.appendChild(block);
+
+        let position = -30;
+
+        const animation = setInterval(() => {
+            position += 3;
+            block.style.top = position + "px";
+
+            if (position > area.clientHeight) {
+                clearInterval(animation);
+                block.remove();
+            }
+        }, 35);
+
+    }, 450);
+}
+
+function loadMidiFile() {
+    const file = document.getElementById("midiFile").files[0];
+
+    if (!file) {
+        setStatus("Please choose a MIDI file first.");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = event => {
+        try {
+            parseMidi(event.target.result, file.name);
+        } catch (error) {
+            setStatus("I couldn't read that MIDI file. Please try another.");
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+
+async function loadMidiURL() {
+    const url = document.getElementById("midiURL").value.trim();
+
+    if (!url) {
+        setStatus("Please paste a direct MIDI file link.");
+        return;
+    }
+
+    try {
+        setStatus("Loading MIDI file...");
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("The file could not be downloaded.");
+        }
+
+        const buffer = await response.arrayBuffer();
+        parseMidi(buffer, url.split("/").pop() || "Linked Song");
+
+    } catch (error) {
+        setStatus(
+            "Couldn't load this link.\n\n" +
+            "The website may block outside access (CORS), or the link " +
+            "may not point directly to a MIDI file.\n\n" +
+            "Try downloading the MIDI file and uploading it instead."
+        );
+    }
+}
+
+function parseMidi(buffer, title) {
+    if (typeof Midi === "undefined") {
+        setStatus("The MIDI reader did not load. Check your internet connection and reload the page.");
+        return;
+    }
+
+    const midi = new Midi(buffer);
+    const tracks = midi.tracks.filter(track => track.notes.length);
+
+    if (!tracks.length) {
+        setStatus("No playable notes were found in this MIDI file.");
+        return;
+    }
+
+    const allNotes = [];
+
+    tracks.forEach(track => {
+        track.notes.forEach(note => {
+            allNotes.push({
+                time: note.time,
+                name: midiNumberToNote(note.midi),
+                duration: note.duration
+            });
+        });
+    });
+
+    allNotes.sort((a, b) => a.time - b.time);
+
+    importedNotes = allNotes;
+    importedTitle = title.replace(/\.(mid|midi)$/i, "");
+
+    document.getElementById("importedTitle").textContent = importedTitle;
+    document.getElementById("importControls").style.display = "block";
+
+    setStatus(
+        "Loaded: " + importedTitle + "\n" +
+        "Notes found: " + allNotes.length + "\n\n" +
+        "You can now play this song in Piano World."
+    );
+}
+
+function midiNumberToNote(number) {
+    const names = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+    const octave = Math.floor(number / 12) - 1;
+    return names[number % 12] + octave;
+}
+
+function playImportedSong() {
+    if (!importedNotes.length) {
+        setStatus("Import a MIDI song first.");
+        return;
+    }
+
+    stopSong();
+    songPlaying = true;
+
+    const firstTime = importedNotes[0].time;
+
+    importedNotes.forEach(note => {
+        const timer = setTimeout(() => {
+            if (songPlaying) {
+                playNote(note.name, Math.min(note.duration || 0.3, 1.5));
+            }
+        }, Math.max(0, (note.time - firstTime) * 1000));
+
+        playbackTimers.push(timer);
+    });
+
+    playbackTimers.push(setTimeout(() => {
+        songPlaying = false;
+    }, (importedNotes[importedNotes.length - 1].time - firstTime + 2) * 1000));
+}
+
+function setStatus(message) {
+    document.getElementById("status").textContent = message;
+}
+
+createPiano();
+renderSongs();
 </script>
+
 </body>
 </html>
